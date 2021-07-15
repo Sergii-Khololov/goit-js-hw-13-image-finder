@@ -102,6 +102,14 @@ img {
   border: 0;
 }
 
+.button.is-hidden {
+  display: none;
+}
+
+.button > .spinner.is-hidden {
+  display: none;
+}
+
 .btn-sarch {
   font-weight: 400;
   letter-spacing: 0.06em;

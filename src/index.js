@@ -1,40 +1,49 @@
-// import './sass/main.scss';
-// const options = {
-//     headers: { Authorization: '22451145-e0c9159451151155547fe6905' },
-// };
-    
 import ApiService from './js/apiService';
-import articleTPL from "./templates/article.hbs";
+import articleTPL from './templates/article.hbs';
+import LoadMoreBtn from './js/load-btn';
 
 const refs = {
-    searchForm: document.querySelector('.search-form'),
-    galleryContainer: document.querySelector('.gallery'),
-    loadMoreBtn: document.querySelector('[data-action="load-more"]')
+  searchForm: document.querySelector('.search-form'),
+  galleryContainer: document.querySelector('.gallery'),
 };
+
+const loadMoreBtn = new LoadMoreBtn({
+  selector: '[data-action="load-more"]',
+  hidden: true,
+});
 
 const apiService = new ApiService();
 
 refs.searchForm.addEventListener('submit', onSearch);
-refs.loadMoreBtn.addEventListener('click', onLoadMore);
+loadMoreBtn.refs.button.addEventListener('click', feathArticl);
 
 function onSearch(e) {
-    e.preventDefault();
-    clearArtikleContainer();
+  e.preventDefault();
+  
+  apiService.query = e.currentTarget.elements.query.value;
+  if (apiService.query === '') {
+    return alert('Не правильный ввод. Попробуёте ещё раз !')
+  }
 
-    apiService.query = e.currentTarget.elements.query.value
-    apiService.restPage();
-    apiService.fetchArticles().then(appendArticlesMarkup);
+  clearArtikleContainer();
+  apiService.restPage();
+  loadMoreBtn.show();
 
+  feathArticl();
 }
 
-function onLoadMore() {
-    apiService.fetchArticles().then(appendArticlesMarkup);
-};
+function feathArticl() {
+  loadMoreBtn.disable();
+  apiService.fetchArticles().then(articles => {
+    appendArticlesMarkup(articles);
+    loadMoreBtn.enable();
+  });
+}
 
 function appendArticlesMarkup(articles) {
-    refs.galleryContainer.insertAdjacentHTML('beforeend', articleTPL(articles))
+  refs.galleryContainer.insertAdjacentHTML('beforeend', articleTPL(articles));
 }
 
 function clearArtikleContainer() {
-    refs.galleryContainer.innerHTML = '';
+  refs.galleryContainer.innerHTML = '';
 }
